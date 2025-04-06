@@ -14,7 +14,7 @@ async def help_command(update: Update, context: CallbackContext):
         "Receivers:\n"
         "2. /newreceiver <label> <email> - Add a recipient.\n"
         "3. /viewreceivers - List your recipients.\n"
-        "4. /removereceiver <label> - Remove a recipient.\n"
+        "4. /removereceiver <label> - Remove a recipient.\n\n"
         "Sending:\n"
         "5. Send me a document.\n"
         "6. /sendto <label> - Send last document to a recipient."
