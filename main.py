@@ -1,5 +1,5 @@
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
-from telegram.error import Conflict
+from telegram.error import Conflict, NetworkError
 from config import TELEGRAM_API_KEY, logger
 from persistence import load_user_data
 from bot_handlers import (
@@ -10,7 +10,7 @@ from bot_handlers import (
 import time
 
 def main():
-    """Set up and run the Telegram bot."""
+    """Set up and run the Telegram bot with polling."""
     while True:
         try:
             logger.info("Starting bot...")
@@ -29,10 +29,14 @@ def main():
             # Add document handler
             app.add_handler(MessageHandler(filters.Document.ALL, handle_document))
             
-            logger.info("Bot is running...")
+            logger.info("Starting polling...")
             app.run_polling()
         except Conflict as e:
             logger.warning(f"Conflict error: {e}. Retrying in 5 seconds...")
+            time.sleep(5)  # Wait 5 seconds before retrying
+            continue
+        except NetworkError as e:
+            logger.error(f"Network error: {e}. Retrying in 5 seconds...")
             time.sleep(5)  # Wait 5 seconds before retrying
             continue
         except Exception as error:
