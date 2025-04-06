@@ -97,14 +97,28 @@ async def remove_receiver_command(update: Update, context: CallbackContext):
         await update.message.reply_text(f"Label `{label}` not found. See `/viewreceivers`.")
         logger.warning(f"User {user_id} tried to remove unknown label '{label}'")
 
-async def handle_document(update: Update, context: CallbackContext):
+async def handle_document(update: Update, context: ApplicationContext):
     """Store a document sent by the user."""
     user_id = update.effective_user.id
     document = update.message.document
+    
+    # Add file size check (30 MB limit)
+    max_size_mb = 30
+    if document.file_size > max_size_mb * 1024 * 1024:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"File too large! Max size is {max_size_mb} MB."
+        )
+        logger.warning(f"User {user_id} uploaded file '{document.file_name}' that exceeds {max_size_mb} MB")
+        return
+    
     context.user_data['last_file_id'] = document.file_id
     context.user_data['last_file_name'] = document.file_name
     safe_name = document.file_name.replace('_', '\\_')
-    await update.message.reply_text(f"Got `{safe_name}`. Use /sendto <label>.")
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=f"Got `{safe_name}`. Use `/sendto <label>`."
+    )
     logger.info(f"User {user_id} uploaded '{document.file_name}'")
 
 async def send_to_command(update: Update, context: CallbackContext):
