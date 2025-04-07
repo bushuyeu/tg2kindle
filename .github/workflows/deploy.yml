@@ -13,17 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔍 Debug SSH private key formatting
-        run: |
-          echo "SSH key preview:"
-          head -n 5 ~/.ssh/github-actions
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions
           chmod 600 ~/.ssh/github-actions
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 🔍 Debug SSH private key formatting
+        run: |
+          echo "SSH key preview:"
+          head -n 5 ~/.ssh/github-actions
 
       - name: Deploy with rollback + Telegram alerts
         run: |
