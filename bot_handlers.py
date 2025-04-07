@@ -89,7 +89,7 @@ async def remove_receiver_command(update: Update, context: Ctx):
         await update.message.reply_text(f"Removed {label}: {email}")
         logger.info(f"User {user_id} removed '{label}'")
     else:
-        await update.message.reply_text(f"Label `{label}` not found. See `/viewreceivers`.")
+        await update.message.reply_text(f"Label {label} not found. See /viewreceivers.")
         logger.warning(f"User {user_id} tried to remove unknown label '{label}'")
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -111,7 +111,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['last_file_name'] = document.file_name
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=f"Got `{document.file_name}`. Use `/sendto <label>`."
+        text=f"Got {document.file_name}. Use /sendto <label>."
     )
     logger.info(f"User {user_id} uploaded '{document.file_name}'")
 
