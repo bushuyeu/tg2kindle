@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: 🔍 Debug SSH private key formatting
+        run: |
+          echo "SSH key preview:"
+          head -n 5 ~/.ssh/github-actions
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
