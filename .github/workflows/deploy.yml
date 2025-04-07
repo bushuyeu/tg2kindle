@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy with rollback + Telegram alerts
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash -s' << 'EOF'
+          ssh -i ~/.ssh/github-actions ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash -s' << 'EOF'
             set -e
             cd ~/tg2kindle
 
