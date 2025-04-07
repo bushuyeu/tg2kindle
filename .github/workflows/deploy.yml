@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: Deploy with rollback + Telegram alerts
 
 on:
   push:
@@ -20,11 +20,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy with rollback on failure
+      - name: Deploy with rollback + Telegram alerts
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash -s' << 'EOF'
             set -e
-
             cd ~/tg2kindle
 
             echo "[1] Saving current commit..."
@@ -33,7 +32,9 @@ jobs:
 
             echo "[2] Pulling latest changes..."
             if ! git pull; then
-              echo "[ERR] Git pull failed. Aborting."
+              curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+                -d chat_id=${{ secrets.TG_CHAT_ID }} \
+                -d text="🚨 *Deploy failed during git pull* on *tg2kindle*."
               exit 1
             fi
 
@@ -42,9 +43,15 @@ jobs:
               echo "[ERR] Restart failed. Rolling back..."
               git reset --hard $(cat .last_commit)
               sudo systemctl restart telegram-bot
-              echo "[OK] Rolled back and restarted previous version."
+              curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+                -d chat_id=${{ secrets.TG_CHAT_ID }} \
+                -d text="⚠️ *Rollback triggered on tg2kindle*. Previous version restored."
               exit 1
             fi
+
+            curl -s -X POST https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage \
+              -d chat_id=${{ secrets.TG_CHAT_ID }} \
+              -d text="✅ *tg2kindle deployed successfully* and bot restarted."
 
             echo "[OK] Deployment successful."
           EOF
