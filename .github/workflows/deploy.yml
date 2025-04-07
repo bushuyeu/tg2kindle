@@ -20,10 +20,31 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy via SSH
+      - name: Deploy with rollback on failure
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'bash -s' << 'EOF'
+            set -e
+
             cd ~/tg2kindle
-            git pull
-            sudo systemctl restart telegram-bot
+
+            echo "[1] Saving current commit..."
+            CURRENT_COMMIT=$(git rev-parse HEAD)
+            echo $CURRENT_COMMIT > .last_commit
+
+            echo "[2] Pulling latest changes..."
+            if ! git pull; then
+              echo "[ERR] Git pull failed. Aborting."
+              exit 1
+            fi
+
+            echo "[3] Restarting bot..."
+            if ! sudo systemctl restart telegram-bot; then
+              echo "[ERR] Restart failed. Rolling back..."
+              git reset --hard $(cat .last_commit)
+              sudo systemctl restart telegram-bot
+              echo "[OK] Rolled back and restarted previous version."
+              exit 1
+            fi
+
+            echo "[OK] Deployment successful."
           EOF
