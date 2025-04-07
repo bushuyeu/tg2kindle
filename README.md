@@ -1,7 +1,6 @@
 # tg2kindle
 
 Send a book to a Telegram bot and it will forward to Kindle
-
 To set up a new Python virtual environment and install requests, follow these steps:
 
 1. Navigate to Your Project Directory

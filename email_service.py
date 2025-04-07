@@ -22,9 +22,8 @@ def send_email(sender_email: str, recipient_email: str, file_path: str, file_nam
             response = requests.post(url, auth=('api', MAILGUN_API_KEY), data=payload, files=files)
         
         if response.status_code == 200:
-            escaped_recipient = recipient_email.replace('.', '\\.').replace('-', '\\-')
             logger.info(f"Email '{file_name}' sent to {recipient_email}")
-            return f"File sent successfully to `{escaped_recipient}`\\!"
+            return f"File sent successfully to {recipient_email}!"
         else:
             error_msg = response.text[:150].replace('_', '\\_').replace('*', '\\*')
             logger.error(f"Mailgun error: {response.status_code} - {response.text}")
@@ -32,7 +31,7 @@ def send_email(sender_email: str, recipient_email: str, file_path: str, file_nam
 
     except FileNotFoundError:
         logger.error(f"File not found: {file_path}")
-        return f"Error: Could not find file '{file_name}'."
+        return f"Error: Could not find file {file_name}."
     except Exception as error:
         logger.error(f"Email sending failed: {error}")
         return f"Error sending email: {error}"
