@@ -9,7 +9,7 @@ import os
 async def help_command(update: Update, context: Ctx):
     """Show how to use the bot."""
     help_text = (
-        "Welcome! Here's how to use me:\n\n"
+        "Welcome! Here's how to use this bot:\n\n"
         "Setup:\n"
         "1. /setsender <your_email@example.com> - Set your sender email in bushuyeu.com domain. \n By default, all files are sent from p@bushuyeu.\n\n"
         "Receivers:\n"
