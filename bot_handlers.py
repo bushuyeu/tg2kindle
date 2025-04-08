@@ -11,7 +11,7 @@ async def start_command(update: Update, context: Ctx):
     start_text = (
         "Welcome! Here's how to use this bot:\n\n"
         "Setup:\n"
-        "1. /setsender <your_email@example.com> - Set your sender email in bushuyeu.com domain. \n By default, all files are sent from p@bushuyeu.\n\n"
+        "1. /setsender <your_email@example.com> - Set your sender email in bushuyeu.com domain. \n By default, all files are sent from `p@bushuyeu`.\n\n"
         "Receivers:\n"
         "2. /newreceiver <label> <email> - Add a recipient.\n"
         "3. /viewreceivers - List your recipients.\n"
