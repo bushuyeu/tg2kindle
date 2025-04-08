@@ -6,9 +6,9 @@ from persistence import get_user_setting, set_user_setting
 from email_service import send_email
 import os
 
-async def help_command(update: Update, context: Ctx):
+async def start_command(update: Update, context: Ctx):
     """Show how to use the bot."""
-    help_text = (
+    start_text = (
         "Welcome! Here's how to use this bot:\n\n"
         "Setup:\n"
         "1. /setsender <your_email@example.com> - Set your sender email in bushuyeu.com domain. \n By default, all files are sent from p@bushuyeu.\n\n"
@@ -20,8 +20,8 @@ async def help_command(update: Update, context: Ctx):
         "5. Send me a document.\n"
         "6. /sendto <label> - Send last document to a recipient."
     )
-    await update.message.reply_text(help_text)
-    logger.info(f"User {update.effective_user.id} used /help")
+    await update.message.reply_text(start_text)
+    logger.info(f"User {update.effective_user.id} used /start")
 
 async def set_sender_command(update: Update, context: Ctx):
     """Set the sender email for the user."""

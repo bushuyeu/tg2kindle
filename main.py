@@ -3,7 +3,7 @@ from telegram.error import Conflict, NetworkError
 from config import TELEGRAM_API_KEY, logger
 from persistence import load_user_data
 from bot_handlers import (
-    help_command, set_sender_command, new_receiver_command,
+    start_command, set_sender_command, new_receiver_command,
     view_receivers_command, remove_receiver_command,
     handle_document, send_to_command
 )
@@ -19,7 +19,7 @@ def main():
             app = Application.builder().token(TELEGRAM_API_KEY).build()
             
             # Add command handlers
-            app.add_handler(CommandHandler("help", help_command))
+            app.add_handler(CommandHandler("start", start_command))
             app.add_handler(CommandHandler("setsender", set_sender_command))
             app.add_handler(CommandHandler("newreceiver", new_receiver_command))
             app.add_handler(CommandHandler("viewreceivers", view_receivers_command))
