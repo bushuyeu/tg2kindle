@@ -97,8 +97,8 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     document = update.message.document
     
-    # Add file size check (30 MB limit)
-    max_size_mb = 30
+    # Add file size check (100 MB limit)
+    max_size_mb = 100
     if document.file_size > max_size_mb * 1024 * 1024:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
