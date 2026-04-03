@@ -16,7 +16,8 @@ def send_email(file_path, file_name):
         msg = MIMEMultipart()
         msg["From"] = SENDER_EMAIL
         msg["To"] = KINDLE_EMAIL
-        msg["Subject"] = file_name
+        # "convert" in subject tells Amazon to reflow PDF for Kindle
+        msg["Subject"] = "convert"
         msg.attach(MIMEText(f"Document: {file_name}", "plain"))
 
         with open(file_path, "rb") as f:
