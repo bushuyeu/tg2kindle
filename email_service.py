@@ -1,44 +1,39 @@
-import requests
-import os
-from config import MAILGUN_API_KEY, MAILGUN_DOMAIN, logger
+import smtplib
+from email.message import EmailMessage
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
 
-def send_email(sender_email: str, recipient_email: str, file_path: str, file_name: str) -> str:
-    """Send an email with a file attachment using Mailgun."""
-    if not sender_email or not recipient_email:
-        return "Error: Sender or recipient email missing."
+from config import SMTP_SERVER, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD, SENDER_EMAIL, KINDLE_EMAIL, logger
 
-    logger.info(f"Sending '{file_name}' from {sender_email} to {recipient_email}")
-    url = f"https://api.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
-    payload = {
-        'from': sender_email,
-        'to': recipient_email,
-        'subject': f'File from Telegram 2 Kindle',
-        'text': f'Document attached: {file_name}',
-    }
+
+def send_email(file_path, file_name):
+    """Send a file to Kindle via MXroute SMTP."""
+    logger.info(f"Sending '{file_name}' from {SENDER_EMAIL} to {KINDLE_EMAIL}")
 
     try:
-        with open(file_path, 'rb') as file:
-            files = {'attachment': (file_name, file, 'application/octet-stream')}
-            response = requests.post(url, auth=('api', MAILGUN_API_KEY), data=payload, files=files)
-        
-        if response.status_code == 200:
-            logger.info(f"Email '{file_name}' sent to {recipient_email}")
-            return f"File sent successfully to {recipient_email}!"
-        else:
-            error_msg = response.text[:150].replace('_', '\\_').replace('*', '\\*')
-            logger.error(f"Mailgun error: {response.status_code} - {response.text}")
-            return f"Error sending file: {response.status_code} - `{error_msg}`"
+        msg = MIMEMultipart()
+        msg["From"] = SENDER_EMAIL
+        msg["To"] = KINDLE_EMAIL
+        msg["Subject"] = file_name
+        msg.attach(MIMEText(f"Document: {file_name}", "plain"))
 
-    except FileNotFoundError:
-        logger.error(f"File not found: {file_path}")
-        return f"Error: Could not find file {file_name}."
-    except Exception as error:
-        logger.error(f"Email sending failed: {error}")
-        return f"Error sending email: {error}"
-    finally:
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-                logger.info(f"Cleaned up {file_path}")
-            except OSError as error:
-                logger.error(f"Cleanup failed for {file_path}: {error}")
+        with open(file_path, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", f"attachment; filename={file_name}")
+            msg.attach(part)
+
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.send_message(msg)
+
+        logger.info(f"Sent '{file_name}' to {KINDLE_EMAIL}")
+        return "Sent to Kindle!"
+
+    except Exception:
+        logger.exception("Email sending failed")
+        return "Error sending email. Check logs."

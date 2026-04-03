@@ -1,25 +1,28 @@
 import os
-from dotenv import load_dotenv
 import logging
 
-# Set up logging for the entire application
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file
-load_dotenv()
+TELEGRAM_API_KEY = os.getenv("TELEGRAM_API_KEY")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+KINDLE_EMAIL = os.getenv("KINDLE_EMAIL")
 
-# Get configuration from environment variables
-MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY')
-MAILGUN_DOMAIN = os.getenv('MAILGUN_DOMAIN')
-TELEGRAM_API_KEY = os.getenv('TELEGRAM_API_KEY')
-DEFAULT_SENDER_EMAIL = os.getenv('SENDER_EMAIL')
-DEFAULT_RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
+SMTP_SERVER = os.getenv("SMTP_SERVER", "mail.mxlogin.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+SMTP_EMAIL = os.getenv("SMTP_EMAIL")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-# Check if essential configuration is present
-if not all([MAILGUN_API_KEY, MAILGUN_DOMAIN, TELEGRAM_API_KEY]):
-    logger.critical("Missing essential config: MAILGUN_API_KEY, MAILGUN_DOMAIN, or TELEGRAM_API_KEY")
+_allowed = os.getenv("ALLOWED_USERS", "")
+ALLOWED_USERS = [int(uid.strip()) for uid in _allowed.split(",") if uid.strip()] if _allowed else []
+
+if not all([TELEGRAM_API_KEY, KINDLE_EMAIL, SMTP_EMAIL, SMTP_PASSWORD]):
+    logger.critical("Missing config — check .env")
     raise SystemExit("Error: Missing essential configuration.")
